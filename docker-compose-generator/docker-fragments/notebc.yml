@@ -1,0 +1,32 @@
+version: "3"
+
+services:
+  notebcd:
+    restart: unless-stopped
+    container_name: btcpayserver_notebcd
+    image: exoboosters/notebc
+    environment:
+      BITCOIN_NETWORK: ${NBITCOIN_NETWORK:-regtest}
+      BITCOIN_EXTRA_ARGS: |
+        rpcport=43782
+        port=39388
+        whitelist=0.0.0.0/0
+    expose:
+      - "43782"
+      - "39388"
+    volumes:
+      - "notebc_datadir:/data"
+  nbxplorer:
+      environment:
+        NBXPLORER_CHAINS: "ltc"
+        NBXPLORER_LTCRPCURL: http://notebcd:43782/
+        NBXPLORER_LTCNODEENDPOINT: notebcd:39388
+      volumes:
+        - "notebc_datadir:/root/.notecoin"
+  btcpayserver:
+      environment:
+        BTCPAY_LTCEXPLORERURL: http://nbxplorer:32838/
+        BTCPAY_CHAINS: "ntbc"
+
+volumes:
+    notebc_datadir:
